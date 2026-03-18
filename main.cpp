@@ -5,10 +5,9 @@
 #include "CLI11.hpp"
 #include "BinaryMesh.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    try
-    {
+    try {
         CLI::App app{"Model Transformer - Convert OBJ model to point cloud"};
 
         std::string inputFile;
@@ -24,7 +23,8 @@ int main(int argc, char *argv[])
             {"ble", PLYFormat::BinaryLittleEndian},
             {"BLE", PLYFormat::BinaryLittleEndian},
             {"bbe", PLYFormat::BinaryBigEndian},
-            {"BBE", PLYFormat::BinaryBigEndian}};
+            {"BBE", PLYFormat::BinaryBigEndian}
+        };
 
         const std::map<std::string, DXFFormat> DXFFormatMap{
             {"ascii", DXFFormat::ASCII},
@@ -32,33 +32,35 @@ int main(int argc, char *argv[])
             {"ble", DXFFormat::BinaryLittleEndian},
             {"BLE", DXFFormat::BinaryLittleEndian},
             {"bbe", DXFFormat::BinaryBigEndian},
-            {"BBE", DXFFormat::BinaryBigEndian}};
+            {"BBE", DXFFormat::BinaryBigEndian}
+        };
 
         app.add_option("-i,--input", inputFile, "Input OBJ file path")
-            ->required()
-            ->check(CLI::ExistingFile);
+           ->required()
+           ->check(CLI::ExistingFile);
 
         app.add_option("-d,--density", density, "Density parameter for point cloud generation")
-            ->default_val(1)
-            ->check(CLI::PositiveNumber);
+           ->default_val(1)
+           ->check(CLI::PositiveNumber);
 
         app.add_option("-o,--output", outputFile, "Output file path")
-            ->required();
+           ->required();
 
         app.add_option("-t,--type", output_type, "Output file type: \nply; \ndxf; \n 二值化 DXF")
-            ->default_val("ply")
-            ->check(CLI::IsMember({"ply", "dxf", "bdxf"}));
+           ->default_val("ply")
+           ->check(CLI::IsMember({"ply", "dxf", "bdxf"}));
 
-        app.add_option("-f, --format", format_string, "File format: \nascii(ASCII); \nble(BinaryLittleEndian); \nbbe(BinaryBigEndian)")
-            ->default_val("bbe");
+        app.add_option("-f, --format", format_string,
+                       "File format: \nascii(ASCII); \nble(BinaryLittleEndian); \nbbe(BinaryBigEndian)")
+           ->default_val("bbe");
 
-        app.add_option("-r, --resolution", resolution, "Resolution parameter for point cloud generation")->default_val(5);
+        app.add_option("-r, --resolution", resolution, "Resolution parameter for point cloud generation")->
+            default_val(5);
 
         CLI11_PARSE(app, argc, argv);
 
         ModelLoader loader;
-        if (!loader.loadModelWithVertexColors(inputFile))
-        {
+        if (!loader.loadModelWithVertexColors(inputFile)) {
             std::cerr << "Error: Failed to load model from " << inputFile << std::endl;
             return 1;
         }
@@ -74,28 +76,22 @@ int main(int argc, char *argv[])
 
         bool exportSuccess = false;
 
-        if (output_type == "ply")
-        {
-            if (!PLYFormatMap.contains(format_string))
-            {
+        if (output_type == "ply") {
+            if (!PLYFormatMap.contains(format_string)) {
                 format_string = "bbe";
             }
 
             exportSuccess = pcl.exportToPLY(outputFile, PLYFormatMap.at(format_string));
         }
-        else if (output_type == "dxf")
-        {
-            if (!DXFFormatMap.contains(format_string))
-            {
+        else if (output_type == "dxf") {
+            if (!DXFFormatMap.contains(format_string)) {
                 format_string = "bbe";
             }
 
             exportSuccess = pcl.exportToDXF(outputFile, DXFFormatMap.at(format_string));
         }
-        else if (output_type == "bdxf")
-        {
-            if (!DXFFormatMap.contains(format_string))
-            {
+        else if (output_type == "bdxf") {
+            if (!DXFFormatMap.contains(format_string)) {
                 format_string = "bbe";
             }
 
@@ -106,18 +102,15 @@ int main(int argc, char *argv[])
             exportSuccess = processor.outputDXF(outputFile, DXFFormatMap.at(format_string));
         }
 
-        if (exportSuccess)
-        {
+        if (exportSuccess) {
             std::cout << "Point cloud exported successfully to: " << outputFile << std::endl;
         }
-        else
-        {
+        else {
             std::cerr << "Error: Failed to export point cloud to " << outputFile << std::endl;
             return 1;
         }
     }
-    catch (std::exception &e)
-    {
+    catch (std::exception& e) {
         std::cout << "Error: " << e.what() << std::endl;
     }
 
