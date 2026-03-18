@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
             }
 
             OriginalModel modelData{pcl.getAllModelData()};
-            BinaryMesh processor{modelData, resolution};
+            TowDBinaryMesh processor{modelData, resolution};
             processor.process();
 
             exportSuccess = processor.outputDXF(outputFile, DXFFormatMap.at(format_string));
